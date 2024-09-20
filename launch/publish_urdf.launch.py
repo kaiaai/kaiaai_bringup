@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright 2023 REMAKE.AI
+# Copyright 2023-2024 KAIA.AI, REMAKE.AI
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@ from launch.conditions import IfCondition, UnlessCondition
 from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
+from kaiaai import config
+
 
 def make_node(context: LaunchContext, urdf_path):
     urdf_path_str = context.perform_substitution(urdf_path)
@@ -41,8 +43,10 @@ def make_node(context: LaunchContext, urdf_path):
 
 def generate_launch_description():
 
+    robot_model_str = config.get_var('robot.model')
+
     default_urdf_path = os.path.join(
-        get_package_share_path('makerspet_snoopy'),
+        get_package_share_path(robot_model_str),
         'urdf',
 #        default_robot_model + '.urdf.xacro')
         'robot.urdf.xacro')

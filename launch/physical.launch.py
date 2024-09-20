@@ -1,4 +1,4 @@
-# Copyright 2023-2024 REMAKE.AI, KAIA.AI, MAKERSPET.COM
+# Copyright 2023-2024 REMAKE.AI, KAIA.AI
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,13 +21,18 @@ from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 from launch.conditions import UnlessCondition
+from kaiaai import config
 # from launch.conditions import LaunchConfigurationEquals
 
 
-def make_nodes(context: LaunchContext, robot_model, lds_model, use_sim_time, no_web_server):
+def make_nodes(context: LaunchContext, robot_model, lidar_model, use_sim_time, no_web_server):
     robot_model_str = context.perform_substitution(robot_model)
-    lds_model_str = context.perform_substitution(lds_model)
+    lidar_model_str = context.perform_substitution(lidar_model)
     use_sim_time_str = context.perform_substitution(use_sim_time)
+
+    if len(robot_model_str) == 0:
+      robot_model_str = config.get_var('robot.model')
+
     description_package_path = get_package_share_path(robot_model_str)
     telem_package_path = get_package_share_path('kaiaai_telemetry')
     web_server_package_path = get_package_share_path('kaiaai_python')
@@ -55,16 +60,19 @@ def make_nodes(context: LaunchContext, robot_model, lds_model, use_sim_time, no_
         'telem.yaml'
     )
 
-    # print('URDF file   : {}'.format(urdf_path_name))
-    # print('Telem params: {}'.format(config_telem_path_name))
-    # print('Model params: {}'.format(config_override_path_name))
-    # print('LDS model   : {}'.format(lds_model_str))
+    lidar_model = lidar_model_str if len(lidar_model_str) > 0 else \
+      robot_model_str + ' default'
+
+    print('URDF file   : {}'.format(urdf_path_name))
+    print('Telem params: {}'.format(config_telem_path_name))
+    print('Model params: {}'.format(config_override_path_name))
+    print('LiDAR model   : {}'.format(lidar_model))
     # print('Web server  : {}'.format(config_web_server_path_name))
 
     LogInfo(msg='URDF file   : {}'.format(urdf_path_name))
     LogInfo(msg='Telem params: {}'.format(config_telem_path_name))
     LogInfo(msg='Model params: {}'.format(config_override_path_name))
-    LogInfo(msg='LDS model   : {}'.format(lds_model_str))
+    LogInfo(msg='LiDAR model   : {}'.format(lidar_model))
     LogInfo(msg='Web server  : {}'.format(config_web_server_path_name))
 
     return [
@@ -73,7 +81,9 @@ def make_nodes(context: LaunchContext, robot_model, lds_model, use_sim_time, no_
             executable="telem",
             output="screen",
             parameters = [config_telem_path_name, config_override_path_name,
-              {'laser_scan.lds_model': lds_model_str}]
+              {'laser_scan.lidar_model': lidar_model_str}]
+              if len(lidar_model_str) > 0 else
+              [config_telem_path_name, config_override_path_name]
         ),
         Node(
             package='robot_state_publisher',
@@ -101,17 +111,17 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(
             name='robot_model',
-            default_value='makerspet_snoopy',
+            default_value='',
             description='Robot description package name'
         ),
         DeclareLaunchArgument(
-            name='lds_model',
-            default_value='YDLIDAR-X4',
+            name='lidar_model',
+            default_value='',
             choices=['YDLIDAR-X4', 'XIAOMI-LDS02RR', 'YDLIDAR-X2-X2L',
               '3IROBOTIX-DELTA-2G', 'YDLIDAR-X3-PRO', 'YDLIDAR-X3',
               'NEATO-XV11', 'SLAMTEC-RPLIDAR-A1', '3IROBOTIX-DELTA-2A',
               '3IROBOTIX-DELTA-2B', 'LDROBOT-LD14P', 'CAMSENSE-X1',
-              'YDLIDAR-SCL'],  # 'AUTO'
+              'YDLIDAR-SCL', ''],  # 'AUTO'
             description='LiDAR model'
         ),
         DeclareLaunchArgument(
@@ -134,7 +144,7 @@ def generate_launch_description():
         ),
         OpaqueFunction(function=make_nodes, args=[
             LaunchConfiguration('robot_model'),
-            LaunchConfiguration('lds_model'),
+            LaunchConfiguration('lidar_model'),
             LaunchConfiguration('use_sim_time'),
             LaunchConfiguration('no_web_server'),
         ]),
