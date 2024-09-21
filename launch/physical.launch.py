@@ -66,13 +66,13 @@ def make_nodes(context: LaunchContext, robot_model, lidar_model, use_sim_time, n
     print('URDF file   : {}'.format(urdf_path_name))
     print('Telem params: {}'.format(config_telem_path_name))
     print('Model params: {}'.format(config_override_path_name))
-    print('LiDAR model   : {}'.format(lidar_model))
+    print('LiDAR model : {}'.format(lidar_model))
     # print('Web server  : {}'.format(config_web_server_path_name))
 
     LogInfo(msg='URDF file   : {}'.format(urdf_path_name))
     LogInfo(msg='Telem params: {}'.format(config_telem_path_name))
     LogInfo(msg='Model params: {}'.format(config_override_path_name))
-    LogInfo(msg='LiDAR model   : {}'.format(lidar_model))
+    LogInfo(msg='LiDAR model : {}'.format(lidar_model))
     LogInfo(msg='Web server  : {}'.format(config_web_server_path_name))
 
     return [
