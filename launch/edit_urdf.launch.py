@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright 2024 KAIA.AI, REMAKE.AI
+# Copyright 2024 KAIA.AI
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,10 +28,11 @@ from kaiaai import config
 def make_nodes(context: LaunchContext, robot_model, gui):
     robot_model_str = context.perform_substitution(robot_model)
     gui_str = context.perform_substitution(gui)
-    description_package_path = get_package_share_path(robot_model_str)
 
     if len(robot_model_str) == 0:
       robot_model_str = config.get_var('robot.model')
+
+    description_package_path = get_package_share_path(robot_model_str)
 
     urdf_path_name = os.path.join(
       description_package_path,

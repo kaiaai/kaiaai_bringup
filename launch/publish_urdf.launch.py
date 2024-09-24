@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright 2023-2024 KAIA.AI, REMAKE.AI
+# Copyright 2023-2024 KAIA.AI
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,7 +48,6 @@ def generate_launch_description():
     default_urdf_path = os.path.join(
         get_package_share_path(robot_model_str),
         'urdf',
-#        default_robot_model + '.urdf.xacro')
         'robot.urdf.xacro')
 
     return LaunchDescription([
