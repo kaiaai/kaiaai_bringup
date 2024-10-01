@@ -37,7 +37,7 @@ def make_nodes(context: LaunchContext, robot_model, lidar_model, use_sim_time, n
 
     description_package_path = get_package_share_path(robot_model_str)
     telem_package_path = get_package_share_path('kaiaai_telemetry')
-    web_server_package_path = get_package_share_path('kaiaai_python')
+    web_server_package_path = get_package_share_path('kaiaai_web')
 
     urdf_path_name = os.path.join(
       description_package_path,
@@ -99,7 +99,7 @@ def make_nodes(context: LaunchContext, robot_model, lidar_model, use_sim_time, n
         ),
         Node(
            condition=UnlessCondition(no_web_server),
-           package='kaiaai_python',
+           package='kaiaai_web',
             executable='web_server',
             name='web_server',
             parameters = [config_web_server_path_name],
