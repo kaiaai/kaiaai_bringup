@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright 2023 REMAKE.AI
+# Copyright 2023-2024 KAIA.AI
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,19 +24,23 @@ from launch.substitutions import Command, LaunchConfiguration, ThisLaunchFileDir
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.actions import Node
+from kaiaai import config
 
 
 def make_nodes(context: LaunchContext, robot_model, use_sim_time, configuration_basename):
     robot_model_str = context.perform_substitution(robot_model)
     use_sim_time_str = context.perform_substitution(use_sim_time)
     configuration_basename_str = context.perform_substitution(configuration_basename)
+
+    if len(robot_model_str) == 0:
+      robot_model_str = config.get_var('robot.model')
+
     description_package_path = get_package_share_path(robot_model_str)
 
     #model_name = re.sub(r'_description$', '', description_str)
     urdf_path_name = os.path.join(
       description_package_path,
       'urdf',
-#      robot_model_str + '.urdf.xacro')
       'robot.urdf.xacro')
 
     robot_description = ParameterValue(Command(['xacro ', urdf_path_name]), value_type=str)
@@ -80,7 +84,7 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(
             name='robot_model',
-            default_value='makerspet_snoopy',
+            default_value='',
             description='Robot description package name'
         ),
         DeclareLaunchArgument(
