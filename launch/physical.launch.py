@@ -24,10 +24,9 @@ from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 from launch.conditions import UnlessCondition
 from kaiaai import config
-# from launch.conditions import LaunchConfigurationEquals
 
 
-def make_nodes(context: LaunchContext, robot_model, lidar_model, use_sim_time, no_web_server):
+def make_nodes(context: LaunchContext, robot_model, lidar_model, use_sim_time):
     robot_model_str = context.perform_substitution(robot_model)
     lidar_model_str = context.perform_substitution(lidar_model)
     use_sim_time_str = context.perform_substitution(use_sim_time)
@@ -37,7 +36,6 @@ def make_nodes(context: LaunchContext, robot_model, lidar_model, use_sim_time, n
 
     description_package_path = get_package_share_path(robot_model_str)
     telem_package_path = get_package_share_path('kaiaai_telemetry')
-    web_server_package_path = get_package_share_path('kaiaai_web')
 
     urdf_path_name = os.path.join(
       description_package_path,
@@ -48,11 +46,6 @@ def make_nodes(context: LaunchContext, robot_model, lidar_model, use_sim_time, n
       telem_package_path,
       'config',
       'telem.yaml')
-
-    config_web_server_path_name = os.path.join(
-      web_server_package_path,
-      'config',
-      'web_server.yaml')
 
     robot_description = ParameterValue(Command(['xacro ', urdf_path_name]), value_type=str)
 
@@ -69,13 +62,11 @@ def make_nodes(context: LaunchContext, robot_model, lidar_model, use_sim_time, n
     print('Telem params: {}'.format(config_telem_path_name))
     print('Model params: {}'.format(config_override_path_name))
     print('LiDAR model : {}'.format(lidar_model))
-    # print('Web server  : {}'.format(config_web_server_path_name))
 
     LogInfo(msg='URDF file   : {}'.format(urdf_path_name))
     LogInfo(msg='Telem params: {}'.format(config_telem_path_name))
     LogInfo(msg='Model params: {}'.format(config_override_path_name))
     LogInfo(msg='LiDAR model : {}'.format(lidar_model))
-    LogInfo(msg='Web server  : {}'.format(config_web_server_path_name))
 
     return [
         Node(
@@ -96,14 +87,6 @@ def make_nodes(context: LaunchContext, robot_model, lidar_model, use_sim_time, n
                 'use_sim_time': use_sim_time_str.lower() == 'true',
                 'robot_description': robot_description
             }]
-        ),
-        Node(
-           condition=UnlessCondition(no_web_server),
-           package='kaiaai_web',
-            executable='web_server',
-            name='web_server',
-            parameters = [config_web_server_path_name],
-            output='screen',
         ),
     ]
 
@@ -132,11 +115,6 @@ def generate_launch_description():
             choices=['true', 'false'],
             description='Use simulation (Gazebo) clock if true'
         ),
-        DeclareLaunchArgument(
-            name='no_web_server',
-            default_value='true',
-            description='Do NOT launch WebRTC web server'
-        ),
         Node(
             package='micro_ros_agent',
             executable='micro_ros_agent',
@@ -148,6 +126,5 @@ def generate_launch_description():
             LaunchConfiguration('robot_model'),
             LaunchConfiguration('lidar_model'),
             LaunchConfiguration('use_sim_time'),
-            LaunchConfiguration('no_web_server'),
         ]),
     ])
