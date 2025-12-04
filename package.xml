@@ -22,7 +22,6 @@
   <exec_depend>ros2launch</exec_depend>
   <exec_depend>kaiaai_telemetry</exec_depend>
   <exec_depend>kaiaai</exec_depend>
-  <exec_depend>kaiaai_web</exec_depend>
   <exec_depend>makerspet_mini</exec_depend>
   <exec_depend>ros2launch</exec_depend>
 
